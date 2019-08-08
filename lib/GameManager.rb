@@ -1,8 +1,8 @@
 class GameManager
 
-    def initialize
-        Kernel.srand(21)
-        #Kernel.srand(Time.now.day+Time.now.month*100)
+    def initialize(seed=(Time.now.day+Time.now.month*100))
+        #Kernel.srand(21)
+        Kernel.srand(seed)
         @players = User.all
         @players.each do |player|
             player.role = "none"
@@ -30,12 +30,12 @@ class GameManager
             player.role = "Innocent"
         end
         get_random_player_of_type("Innocent").role = "Martyr" 
-        traitor1 = get_random_player_of_type("Innocent")
-        traitor1.role = "Traitor"
-        traitor2 = get_random_player_of_type("Innocent")
-        traitor2.role = "Traitor"
-        traitor1.target = traitor2.name
-        traitor2.target = traitor1.name
+        terrorist1 = get_random_player_of_type("Innocent")
+        terrorist1.role = "Terrorist"
+        terrorist2 = get_random_player_of_type("Innocent")
+        terrorist2.role = "Terrorist"
+        terrorist1.target = terrorist2.name
+        terrorist2.target = terrorist1.name
     end
 
     def get_random_player_of_type(required_role = "none")
@@ -57,7 +57,8 @@ class GameManager
         you = @players.find do |player|
             player.passhash == hash
         end
-
+        system('clear')
+        team_rules
         case you.role
         when "none"
             puts "something went wrong!"
@@ -76,14 +77,25 @@ class GameManager
             puts "Someone is hunting you!"
             puts "You win if you are still alive at the end of the game"
         when "Innocent"
-            puts "You're Innocent! You win if you're still alive at the end of the game"
-        when "Traitor"
-            puts "You're a Traitor! You win if all non-traitors are dead at the end of the game"
+            puts "You're Innocent! You win if any Innocents are still alive at the end of the game"
+        when "Terrorist"
+            puts "You're a Terrorist! You win if all Innocents are dead at the end of the game"
             puts "Your ally is #{you.target}."
         when "Martyr"
-            puts "You're a Martyr! You win if you are killed by an Innocent!"
-            puts "If you shoot anyone, you lose and you're out. (but you can still miss on purpose!)"
-            puts "If you are killed, reveal that you're the Martyr. Your killer must reveal their role."
+            puts "You're a Martyr! You win if you are killed by an innocent!"
+            puts "You're not allowed to shoot a gun. (but feel free to wave it around threateningly)"
+            puts "When you are killed, your killer must reveal their role. If they are innocent, they're out!"
         end
+    end
+
+    def team_rules
+        puts"Rules:"
+        puts"There are 2 Terrorists and 1 Martyr, everyone else is Innocent."
+        puts"Both terrorists knows who the other terrorist is."
+        puts"The Terrorists want to kill all the innocents"
+        puts"The Innocents want at least one innocent alive."
+        puts"The Martyr wants to be shot by an innocent."
+        puts"If you are hit by a shot, you are out. Announce your role, but you may not tell anyone who shot you."
+        puts""
     end
 end
