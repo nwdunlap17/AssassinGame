@@ -26,6 +26,7 @@ class GameManager
 
     def assign_team_roles
         count = @players.length
+        @terrorist_number = @players.length/3
         @players.each do |player|
             player.role = "Innocent"
         end
