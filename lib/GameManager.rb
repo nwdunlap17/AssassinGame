@@ -103,7 +103,7 @@ class GameManager
             puts "You're Innocent! You win if any Innocents are still alive at the end of the game"
         when "Detective"
             puts "You're Innocent! You win if any Innocents are still alive at the end of the game"
-            puts "You've deduced that one of the people below is a Terrorist, and one of the people below is an Innocent."
+            puts "At least one person below is a Terrorist, and at least one person below is an Innocent"
             you.links.each do |person|
                 puts "#{person}"
             end
@@ -111,20 +111,25 @@ class GameManager
             puts "You're a Terrorist! You win if all Innocents are dead at the end of the game"
             puts "Your ally is #{you.links[0]}."
         when "Martyr"
-            puts "You're a Martyr! You win if you are killed by an innocent!"
-            puts "You're not allowed to shoot a gun. (but feel free to wave it around threateningly)"
-            puts "When you are killed, your killer must reveal their role. If they are innocent, they're out!"
+            puts "You're a Martyr sympathetic to the Terrorist cause!" 
+            puts "Get killed unprovoked by an Innocent to win!"
+            puts "YOU WIN IF YOU ARE KILLED BY AN INNOCENT."
+            puts "YOU LOSE IF YOU FIRE A GUN, OR DO NOT GET KILLED BY AN INNOCENT."
         end
     end
 
     def team_rules
         puts"Rules:"
-        puts"There are 2 Terrorists and 1 Martyr, everyone else is Innocent."
-        puts"Both terrorists knows who the other terrorist is."
-        puts"The Terrorists want to kill all the innocents"
-        puts"The Innocents want at least one innocent alive."
-        puts"The Martyr wants to be shot by an innocent."
-        puts"If you are hit by a shot, you are out. Announce your role, but you may not tell anyone who shot you."
-        puts""
+        puts"If you are hit with a bullet, you are out. Announce your role, but you may not tell anyone who shot you."
+        puts"Bullets must be fired from a gun. If a bullet hits an object you're holding, you're out."
+        puts"Terrorists:"
+        puts"There are 2 Terrorists. They know who eachother are. They want every innocent dead before the end of the game(end of lunch)"
+        puts"Innocents:"
+        puts"There are 5 Innocents, they win if ANY Innocent is alive at the end of the game (end of lunch)"
+        puts"One Innocent is a Detective, they get a list of 3 suspects, they know one is a terrorist and one is innocent, but not who is who."
+        puts"Martyr:"
+        puts"There is one Martyr. If an Innocent shoots the martyr, the Innocent dies and the Martyr wins."
+        puts"If a terrorist shoots the Martyr, the terrorist must reveal their role"
+        puts"The Martyr loses if they fire a gun"
     end
 end
