@@ -1,12 +1,12 @@
 class GameManager
 
     def initialize(seed=(Time.now.day+Time.now.month*100))
-        #Kernel.srand(21)
+        #Kernel.srand(22)
         Kernel.srand(seed)
         @players = User.all
         @players.each do |player|
             player.role = "none"
-            player.target = nil
+            player.links = []
         end
         #assign_assassin_roles
         assign_team_roles
@@ -20,7 +20,7 @@ class GameManager
             target.role = "Target"
             assassin = get_random_player_of_type("none")
             assassin.role = "Assassin"
-            assassin.target = target.name
+            assassin.links << target.name
         end
     end
 
@@ -35,8 +35,30 @@ class GameManager
         terrorist1.role = "Terrorist"
         terrorist2 = get_random_player_of_type("Innocent")
         terrorist2.role = "Terrorist"
-        terrorist1.target = terrorist2.name
-        terrorist2.target = terrorist1.name
+        terrorist1.links << terrorist2.name
+        terrorist2.links << terrorist1.name
+
+        @detective = get_random_player_of_type("Innocent")
+
+        @detective.role = "Detective"
+        @suspect = get_random_player_of_type("Terrorist")
+        @innocent = get_random_player_of_type("Innocent")
+        acceptable = false
+        randval = -100
+        while acceptable == false
+            randval = rand(@players.length)+1
+            acceptable = true 
+            if @suspect.id == randval || @innocent.id == randval || @detective.id == randval
+                acceptable = false
+                puts @suspect.id
+                puts @innocent.id
+                puts randval
+            end
+        end
+        @detective.links << @suspect.name
+        @detective.links << @innocent.name
+        @detective.links << @players[randval-1].name
+        @detective.links = @detective.links.shuffle
     end
 
     def get_random_player_of_type(required_role = "none")
@@ -67,7 +89,7 @@ class GameManager
             puts "You're an Assassin!"
             puts "You win if your target is dead at the end of the game and you're alive."
             if Time.now.hour >= 12 && Time.now.minute >= 30
-                puts "Your target is #{you.target.name}"
+                puts "Your target is #{you.links[0].name}"
             else
                 puts "Your target will be revealed at 12:30"
             end
@@ -79,9 +101,15 @@ class GameManager
             puts "You win if you are still alive at the end of the game"
         when "Innocent"
             puts "You're Innocent! You win if any Innocents are still alive at the end of the game"
+        when "Detective"
+            puts "You're Innocent! You win if any Innocents are still alive at the end of the game"
+            puts "You've deduced that one of the people below is a Terrorist, and one of the people below is an Innocent."
+            you.links.each do |person|
+                puts "#{person}"
+            end
         when "Terrorist"
             puts "You're a Terrorist! You win if all Innocents are dead at the end of the game"
-            puts "Your ally is #{you.target}."
+            puts "Your ally is #{you.links[0]}."
         when "Martyr"
             puts "You're a Martyr! You win if you are killed by an innocent!"
             puts "You're not allowed to shoot a gun. (but feel free to wave it around threateningly)"

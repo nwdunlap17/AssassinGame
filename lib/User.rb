@@ -1,5 +1,5 @@
 class User < ActiveRecord::Base
-    attr_accessor :role, :target
+    attr_accessor :role, :links
     def self.create_new_user
         while true
             print "Enter your first name: "
