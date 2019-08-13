@@ -2,7 +2,7 @@ class GameManager
 
     def initialize(seed=(Time.now.day+Time.now.month*100))
         #Kernel.srand(22)
-        Kernel.srand(seed)
+        Kernel.srand(seed+2)
         @players = User.all
         @players.each do |player|
             player.role = "none"
@@ -114,7 +114,7 @@ class GameManager
             puts "You're a Martyr sympathetic to the Terrorist cause!" 
             puts "Get killed unprovoked by an Innocent to win!"
             puts "YOU WIN IF YOU ARE KILLED BY AN INNOCENT."
-            puts "YOU LOSE IF YOU FIRE A GUN, OR DO NOT GET KILLED BY AN INNOCENT."
+            puts "YOU LOSE IF YOU SHOOT SOMEONE, OR DO NOT GET KILLED BY AN INNOCENT."
         end
     end
 
@@ -130,6 +130,6 @@ class GameManager
         puts"Martyr:"
         puts"There is one Martyr. If an Innocent shoots the martyr, the Innocent dies and the Martyr wins."
         puts"If a terrorist shoots the Martyr, the terrorist must reveal their role"
-        puts"The Martyr loses if they fire a gun"
+        puts"The Martyr loses if they hit anyone with a bullet"
     end
 end
