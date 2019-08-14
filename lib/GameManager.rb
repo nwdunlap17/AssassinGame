@@ -3,17 +3,27 @@ class GameManager
     def initialize(seed=(Time.now.day+Time.now.month*100))
         #Kernel.srand(22)
         Kernel.srand(seed+2)
-        @players = User.all
-        @players.each do |player|
+        puts "Enter number of players:"
+        @numplayers = gets.chomp.to_i
+        @players = []
+        @numplayers.times do |i|
+            player = User.new
+            player.name = "Player#{i}"
             player.role = "none"
             player.links = []
+            @players << player
         end
+        # @players = User.all
+        # @players.each do |player|
+        #     player.role = "none"
+        #     player.links = []
+        # end
         #assign_assassin_roles
         assign_team_roles
     end
 
     def assign_assassin_roles
-        count = @players.length
+        #count = @players.length
         get_random_player_of_type("none").role = "FBI Agent"
         3.times do 
             target = get_random_player_of_type("none")
@@ -26,39 +36,53 @@ class GameManager
 
     def assign_team_roles
         count = @players.length
-        @terrorist_number = @players.length/3
+
+        if count >= 9
+            bodyguard = get_random_player_of_type("Innocent")
+            bodyguard.role = "Bodyguard"
+            client = get_random_player_of_type("Innocent")
+            bodyguard.links << client.name
+        end
+
+        @terrorist_number = 2
+        if count >= 10
+            @terrorist_number += 1
+        end
         @players.each do |player|
             player.role = "Innocent"
         end
         get_random_player_of_type("Innocent").role = "Martyr" 
-        terrorist1 = get_random_player_of_type("Innocent")
-        terrorist1.role = "Terrorist"
-        terrorist2 = get_random_player_of_type("Innocent")
-        terrorist2.role = "Terrorist"
-        terrorist1.links << terrorist2.name
-        terrorist2.links << terrorist1.name
+        terrorists = []
+        @terrorist_number.times do 
+            terrorist1 = get_random_player_of_type("Innocent")
+            terrorist1.role = "Terrorist"
+            terrorists << terrorist1
+        end
+        terrorists.each do |terrorist|
+            terrorists.each do |linkedterrorist|
+                if terrorist.name != linkedterrorist.name
+                    terrorist.links << linkedterrorist.name
+                end
+            end
+        end
 
         @detective = get_random_player_of_type("Innocent")
-
         @detective.role = "Detective"
         @suspect = get_random_player_of_type("Terrorist")
         @innocent = get_random_player_of_type("Innocent")
         acceptable = false
         randval = -100
         while acceptable == false
-            randval = rand(@players.length)+1
+            randname = "Player" + "#{rand(@players.length)+1}"
             acceptable = true 
-            if @suspect.id == randval || @innocent.id == randval || @detective.id == randval
+            if @suspect.name == randname || @innocent.name == randname || @detective.name == randname
                 acceptable = false
-                puts @suspect.id
-                puts @innocent.id
-                puts randval
             end
         end
         @detective.links << @suspect.name
         @detective.links << @innocent.name
-        @detective.links << @players[randval-1].name
-        @detective.links = @detective.links.shuffle
+        @detective.links << randname
+        @detective.links = @detective.links.sort
     end
 
     def get_random_player_of_type(required_role = "none")
@@ -73,12 +97,13 @@ class GameManager
     end
 
     def get_role
-        puts "Enter name: "
-        name = gets.chomp
-        puts "Enter password: "
-        hash = PasswordManager.new_password(name,gets.chomp)
+        # puts "Enter name: "
+        puts "Enter your player number: "
+        name = "Player"+gets.chomp
+        # puts "Enter password: "
+        # hash = PasswordManager.new_password(name,gets.chomp)
         you = @players.find do |player|
-            player.passhash == hash
+             player.name == name
         end
         system('clear')
         team_rules
@@ -107,6 +132,10 @@ class GameManager
             you.links.each do |person|
                 puts "#{person}"
             end
+        when "Bodyguard"
+            puts "You're a Bodyguard!"
+            puts "You win if #{you.links[0]} is alive at the end of the game!"
+
         when "Terrorist"
             puts "You're a Terrorist! You win if all Innocents are dead at the end of the game"
             puts "Your ally is #{you.links[0]}."
@@ -120,16 +149,16 @@ class GameManager
 
     def team_rules
         puts"Rules:"
-        puts"If you are hit with a bullet, you are out. Announce your role, but you may not tell anyone who shot you."
-        puts"Bullets must be fired from a gun. If a bullet hits an object you're holding, you're out."
-        puts"Terrorists:"
-        puts"There are 2 Terrorists. They know who eachother are. They want every innocent dead before the end of the game(end of lunch)"
-        puts"Innocents:"
-        puts"There are 5 Innocents, they win if ANY Innocent is alive at the end of the game (end of lunch)"
-        puts"One Innocent is a Detective, they get a list of 3 suspects, they know one is a terrorist and one is innocent, but not who is who."
-        puts"Martyr:"
-        puts"There is one Martyr. If an Innocent shoots the martyr, the Innocent dies and the Martyr wins."
-        puts"If a terrorist shoots the Martyr, the terrorist must reveal their role"
-        puts"The Martyr loses if they hit anyone with a bullet"
+        puts"* If you are hit with a bullet, you are out. Announce your role, but you may not tell anyone who shot you."
+        puts"    Bullets must be fired from a gun. If a bullet hits an object you're holding, you're out."
+        puts"* There are #{@terrorist_number} Terrorists. They know who eachother are. They want every innocent dead before the end of the game(end of lunch)"
+        puts"* Most players are Innocents, they win if ANY Innocent is alive at the end of the game (end of lunch)"
+        puts"    One Innocent is a Detective, they get a list of 3 suspects, they know one is a terrorist and one is innocent, but not who is who."
+        puts"* There is one Martyr. If an Innocent shoots the martyr, the Innocent dies and the Martyr wins."
+        puts"    If a terrorist shoots the Martyr, the terrorist must reveal their role"
+        puts"    The Martyr loses if they hit anyone with a bullet"
+        if @players.length > 9
+            puts"* There is one bodyguard. The bodyguard wins if their client is alive at the end of the game."
+        end
     end
 end
