@@ -1,14 +1,14 @@
 class GameManager
 
     def initialize(seed=(Time.now.day+Time.now.month*100))
-        #Kernel.srand(22)
+        #Kernel.srand(Time.now.day+Time.now.month*100)
         Kernel.srand(seed+2)
         puts "Enter number of players:"
         @numplayers = gets.chomp.to_i
         @players = []
         @numplayers.times do |i|
             player = User.new
-            player.name = "Player#{i}"
+            player.name = "Player#{i+1}"
             player.role = "none"
             player.links = []
             @players << player
